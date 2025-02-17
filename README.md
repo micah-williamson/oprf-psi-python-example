@@ -5,6 +5,22 @@ without revealing to the other their full audience. This is an example implement
 
 - [Private set intersection](https://en.wikipedia.org/wiki/Private_set_intersection)
 
+## Double Encryption Agent
+
+This example requires both `Server` and `Client` to encrypt the set which is stored and evaluated
+on the `Server.
+
+![Double encryption agent sequence diagram](./docs/deagent.drawio.png)
+
+**Sequence:**
+1. The `Server` encrypts raw data into an encrypted set.
+2. During handshake, the `Client` fetches the server-encrypted set and double encrypts it with their
+   own private key.
+3. The double encrypted set is stored on `Server`.
+4. To perform a membership check, the `Client` encrypts member values with their private key and
+   sends to the server.
+5. The `Server` double encrypts the member, and checks if the value exists in the double encrypted
+   set.
 
 ## Blinding Agent
 
@@ -18,15 +34,17 @@ Pros
 - This solution can be more network efficient if the volume of PSI lookups are low.
 - The `Server` can build a single set for multiple clients.
 
-![Sequence diagram](./docs/blindingagent.drawio.png)
+![Blinding agent sequence diagram](./docs/blindingagent.drawio.png)
 
 **Sequence:**
-1. The `Server` uses ECDSA to encrypt raw values into an encrypted set, which is shared with the
-   `Client` without revealing the raw data.
-2. The `Client` uses ECDSA to blind its own values before sending to the `Server` to be encrypted.
-3. The `Server` encrypts the blinded values using the same method used in step 1.
-4. The `Client` unblinds the blinded+encrypted values revealing the encrypted value. This is used to 
-   check if their own values are present in the shared set.
+1. The `Server` encrypts raw data into and encrypted set. 
+2. During handshake, the encrypted set is shared with the `Client`. 
+3. To perform a membership check, the `Client` must send member values to the server to be 
+   encrypted.
+   * To avoid revealing their own private data, the `Client` 'blinds' the value through 
+      encryption.
+   * The returned value is 'unblinded' through decryption.
+4. The `Client` checks if the server-encrypted value exists in the shared set.
 
 ## Usage
 
