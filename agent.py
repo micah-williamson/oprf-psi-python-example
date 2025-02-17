@@ -1,11 +1,13 @@
 from __future__ import annotations
 import random
 
-from crypto import bytes_to_ec_point, ec_multiply, mod_inverse, unpack_ec_point, \
-    pack_ec_point, bytes_to_field
+from ecdsa.ellipticcurve import Point
 
-PRIVATE_SET_SIZE_MIN = 300
-PRIVATE_SET_SIZE_MAX = 8000
+from crypto import bytes_to_ec_point, ec_multiply, inverse_mod, unpack_ec_point, \
+    pack_ec_point, gen_secret
+
+PRIVATE_SET_SIZE_MIN = 20
+PRIVATE_SET_SIZE_MAX = 60
 
 
 class Agent:
@@ -13,21 +15,21 @@ class Agent:
     def __init__(self, name: str):
         # Local secret salt for hashing
         self.name = name
-        self.secret_key = bytes_to_field(random.randbytes(32))
+        self.secret_key = gen_secret()
 
         # Create local private and public data sets
-        data = [f'{i}'.encode() for i in range(10000)]
+        data = [f'{i}'.encode() for i in range(100)]
         random.shuffle(data)
         self.priv_data = data[:random.randint(PRIVATE_SET_SIZE_MIN, PRIVATE_SET_SIZE_MAX)]
         self.pub_data = {self._hash(i) for i in self.priv_data}
 
-    def _hash(self, val: bytes) -> (int, int):
+    def _hash(self, val: bytes) -> str:
         ec_point = bytes_to_ec_point(val)
         new_point = ec_multiply(ec_point, self.secret_key)
         return pack_ec_point(new_point)
 
     @staticmethod
-    def _blind(val: bytes) -> ((int, int), int):
+    def _blind(val: bytes) -> (Point, int):
         """
         Converts the value to a valid POINT on an EC curve.
         Then blinds the value by a blind factor.
@@ -35,14 +37,14 @@ class Agent:
         The unblinded POINT can be found by passing the blinded value and blind factor to the
             unblind method.
         """
-        blind_factor = bytes_to_field(random.randbytes(32))
+        blind_factor = gen_secret()
         ec_point = bytes_to_ec_point(val)
         blinded_point = ec_multiply(ec_point, blind_factor)
         return blinded_point, blind_factor
 
     @staticmethod
-    def _unblind(blinded_point: (int, int), blind_factor: int) -> (int, int):
-        b_inverse = mod_inverse(blind_factor)
+    def _unblind(blinded_point: Point, blind_factor: int) -> Point:
+        b_inverse = inverse_mod(blind_factor)
         unblinded_point = ec_multiply(blinded_point, b_inverse)
         return unblinded_point
 
@@ -50,7 +52,7 @@ class Agent:
     def api_get_name(self) -> str:
         return self.name
 
-    def api_get_public_data(self) -> set[bytes]:
+    def api_get_public_data(self) -> set[str]:
         return self.pub_data
 
     def api_hash(self, point: str) -> str:

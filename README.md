@@ -27,6 +27,8 @@ An Agent can perform both `Server` and `Client` behavior. In this example Alice 
 ## Usage
 
 ```
+./Scripts/activate
+pip install -r requirements.txt
 python main.py
 ```
 
