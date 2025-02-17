@@ -18,7 +18,7 @@ Pros
 - This solution can be more network efficient if the volume of PSI lookups are low.
 - The `Server` can build a single set for multiple clients.
 
-![Sequence diagram](./docs/alicebob.drawio.png)
+![Sequence diagram](./docs/blindingagent.drawio.png)
 
 **Sequence:**
 1. The `Server` uses ECDSA to encrypt raw values into an encrypted set, which is shared with the
