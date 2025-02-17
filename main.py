@@ -1,12 +1,15 @@
-from agent import Agent
+from agent.blinding_agent import BlindingAgent
 
 
 def main():
-    alice = Agent('Alice')
-    bob = Agent('Bob')
+    alice = BlindingAgent('Alice')
+    bob = BlindingAgent('Bob')
 
-    alice.compare(bob)
-    bob.compare(alice)
+    alice.handshake(bob)
+    bob.handshake(alice)
+
+    alice.run_comparison_test()
+    bob.run_comparison_test()
 
 
 if __name__ == '__main__':
