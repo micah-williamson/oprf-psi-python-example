@@ -1,18 +1,25 @@
-# OPRF-PSI Python Example
+# PSI Python Examples
 
-Private set intersection (PSI) using oblivious pseudorandom functions is a technique for two parties
-to share knowledge of overlapping audiences without revealing to the other their full audience. This 
-is an example implementation in python.
+Private set intersection (PSI) is a way for two parties to share knowledge of overlapping audiences 
+without revealing to the other their full audience. This is an example implementation in python.
 
 - [Private set intersection](https://en.wikipedia.org/wiki/Private_set_intersection)
-- [Oblivious pseudorandom function (OPRF)](https://en.wikipedia.org/wiki/Oblivious_pseudorandom_function) 
+ 
 
-## Overview
+## DH Agent
+
+## Blinding Agent
+
+This example does not require upfront double encryption of the shared set. Instead, the `Client`
+requests that the `Server` encrypts numbers on a per-request basis, and checks if the value exists
+in the shared set locally. The `Client` avoids oversharing by 'blinding' the raw data before 
+sending to the `Server`, and then 'unblinding' the response to reveal the server-encrypted value.
+
+Pros
+- This solution can be more network efficient if the volume of PSI lookups are low.
+- The `Server` can build a single set for multiple clients.
 
 ![Sequence diagram](./docs/alicebob.drawio.png)
-
-An Agent can perform both `Server` and `Client` behavior. In this example Alice is acting as 
-`Server` and Bob is acting as `Client`.
 
 (**Note**: in this sequence I refer to OPRF as "hashing" because it's shorter)
 

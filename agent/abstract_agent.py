@@ -1,5 +1,6 @@
 from __future__ import annotations
 import random
+from abc import ABC, abstractmethod
 
 from ecdsa.ellipticcurve import Point
 
@@ -10,7 +11,7 @@ PRIVATE_SET_SIZE_MIN = 20
 PRIVATE_SET_SIZE_MAX = 60
 
 
-class Agent:
+class AbstractAgent(ABC):
 
     def __init__(self, name: str):
         # Local secret salt for hashing
@@ -61,6 +62,9 @@ class Agent:
         return pack_ec_point(new_point)
 
     # Test
+    @abstractmethod
+    def compare(self, other: AbstractAgent):
+        raise NotImplementedError()
     def compare(self, other: Agent):
         other_name = other.api_get_name()
         other_data = other.api_get_public_data()
